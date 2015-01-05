@@ -3,11 +3,6 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js"></script>
-<!--
-    <script type="text/javascript" src="d3/d3.csv.js"></script>
-    <script type="text/javascript" src="d3/d3.time.js"></script>
--->
-    <link type="text/css" rel="stylesheet" href="style.css"/>
     <style type="text/css">
 
 svg {
@@ -136,38 +131,37 @@ var rect = svg.append("svg:rect")
     .attr("height", h)
     .call(d3.behavior.zoom().on("zoom", zoom));
 
-//d3.csv("flights-departed.csv", function(data) {
-d3.csv("bytesout.csv", function(data) {
+d3.csv("bytesout.eth0.csv", function(data) {
 
-var prevValue = 0;
+  var prevValue = 0;
 
   // Parse dates and numbers.
   data.forEach(function(d) {
-//    d.date = parse(d.date);
-var ds = d.date.split('');
-d.date = new Date(ds[0]+ds[1]+ds[2]+ds[3],(ds[4]+ds[5]) -1,+ds[6]+ds[7], ds[8]+ds[9],  ds[10]+ds[11], ds[12]+ds[13]);
 
-//    d.date = new Date(d.date);
+  var ds = d.date.split('');
+  d.date = new Date(ds[0]+ds[1]+ds[2]+ds[3],(ds[4]+ds[5]) -1,+ds[6]+ds[7], ds[8]+ds[9],  ds[10]+ds[11], ds[12]+ds[13]);
 
-
-// compute delta rather than passing through this accumulating value
-var theValue = +d.value;
-   if (prevValue > 0) {
-      d.value = 0- (prevValue-d.value);
-   }
-   else {
-      d.value = 0;
-   }
-   prevValue = +theValue;
-
-
+  // compute delta rather than passing through this accumulating value
+  var theValue = +d.value;
+  if (prevValue > 0) {
+     d.value = 0- (prevValue-d.value);
+  }
+  else {
+     d.value = 0;
+  }
+  prevValue = +theValue;
 
     
-  });
+}); // foreach data element
 
-  // Compute the maximum price.
-//  x.domain([new Date(1999, 0, 1), new Date(2003, 0, 0)]);
-  x.domain([new Date(2014, 11, 25), new Date(2015, 0, 3)]);
+  // figure out last 24 hours (better to detect min/max in data)
+var today = new Date();
+var yesterday = new Date();
+var dayOfMonth = yesterday.getDate();
+yesterday.setDate(dayOfMonth - 1);
+
+  //x.domain([new Date(2015, 0, 1), new Date(2015, 0, 5)]);
+  x.domain([yesterday, today]);
   y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
   // Bind the data to our path elements.
@@ -184,7 +178,7 @@ function draw() {
   svg.select("g.y.axis").call(yAxis);
   svg.select("path.area").attr("d", area);
   svg.select("path.line").attr("d", line);
-  d3.select("#footer span").text("U.S. Commercial Flights, " + x.domain().map(format).join("-"));
+  d3.select("#footer span").text("Bytes, " + x.domain().map(format).join("-"));
 }
 
 
